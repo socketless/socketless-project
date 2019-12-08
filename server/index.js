@@ -3,6 +3,7 @@ const express = require("express");
 const uuidv4 = require('uuid/v4');
 const request = require('request');
 const bodyParser = require('body-parser');
+const querystring = require('querystring');
 
 const SOCKETLESS_WEBSOCKET_PORT = process.env.SOCKETLESS_WEBSOCKET_PORT || 4000;
 const SOCKETLESS_REST_PORT = process.env.SOCKETlESS_WEBSOCKET_PORT || 4001;
@@ -43,10 +44,21 @@ const server = {
 
       ws.on('message', message => {
         console.log('received: %s', message);
-        request.post({url: SOCKETLESS_ON_MSG_URL, json: { sid: socketId, data: message }}, (error, response, body) => {
-          console.log('error:', error);
-          console.log('statusCode:', response && response.statusCode);
-          console.log('body:', body);
+
+        const url = SOCKETLESS_ON_MSG_URL + '?' + querystring.stringify({ sid: socketId });
+        const reqOpts = { url, body: message };
+
+        // TODO XXX think about this some more :)
+        if (message.substr(0,1) === '{')
+          reqOpts.headers = { 'Content-type': 'application/json' };
+
+        console.log(`-> ${url}, body: ${message.substring(0, 20)}`);
+        request.post(reqOpts, (error, response, body) => {
+          console.log(`<- ${url} [${response && response.statusCode}], body: ${body.substring(0, 20)}`);
+          if (error)
+            console.log("    ", error);
+          if (body !== 'OK')
+            console.log("    ", body);
         });
       });
 
