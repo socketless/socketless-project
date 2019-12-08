@@ -1,6 +1,11 @@
 const request = require('request');
+const querystring = require('querystring');
 
 const SERVER_URL='http://localhost:4001/';
+
+function constructUrl(endPoint, query) {
+  return SERVER_URL + endPoint + '?' + querystring.stringify(query);
+}
 
 class SocketlessClient {
 
@@ -10,7 +15,8 @@ class SocketlessClient {
   }
 
   addTag(sid, tag) {
-    request.post({ url: SERVER_URL+'addTag', json: { sid, tag }}, (err, res, body) => {
+    const url = constructUrl('addTag', { sid, tag });
+    request(url, (err, res, body) => {
       console.log('addTag query got back', body);
     });
   }
@@ -21,7 +27,8 @@ class SocketlessClient {
   }
 
   sendToTag(tag, msg) {
-    request.post({ url: SERVER_URL+'sendToTag', json: { tag, msg }}, (err, res, body) => {
+    const url = constructUrl('sendToTag', { tag });
+    request.post({ url, body: msg }, (err, res, body) => {
       console.log('sendToTag query got back', body);
     });
   }

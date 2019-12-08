@@ -8,6 +8,15 @@ const SOCKETLESS_WEBSOCKET_PORT = process.env.SOCKETLESS_WEBSOCKET_PORT || 4000;
 const SOCKETLESS_REST_PORT = process.env.SOCKETlESS_WEBSOCKET_PORT || 4001;
 const SOCKETLESS_ON_MSG_URL = 'http://localhost:3000/api/onMsg';
 
+/*
+  TODO
+
+  - API
+    - debug=true parameter, return number of sockets sent to, timing stats
+    - should always return JSON answer with some info.
+
+*/
+
 const server = {
 
   init(config) {
@@ -52,27 +61,34 @@ const server = {
         + SOCKETLESS_REST_PORT);
     });
 
-    rest.use(bodyParser.json());
+    //rest.use(bodyParser.json());
 
-    rest.post('/addTag', (req, res) => {
-      console.log('server addTag', req.body);
-      const socket = this.sockets.get(req.body.sid);
-      const tag = req.body.tag;
+    rest.get('/addTag', (req, res) => {
+      console.log('server addTag', req.query, req.body);
+      const socket = this.sockets.get(parseInt(req.query.sid));
+      const tag = req.query.tag;
 
       if (!this.tags.has(tag))
         this.tags.set(tag, new Set());
 
       this.tags.get(tag).add(socket);
+      res.sendStatus(200);
     });
 
     rest.post('/sendToTag', (req, res) => {
-      console.log('server post', req.body);
+      console.log('server post', req.query, req.body);
 
-      const tagSet = this.tags.get(req.body.tag);
-      if (tagSet)
-        tagSet.forEach(
-          socket => socket.send(JSON.stringify(req.body))
-        );
+      const socketsWithTag = this.tags.get(req.query.tag);
+
+      if (socketsWithTag)
+        req.on('data', chunk => {
+          const str = chunk.toString();
+          socketsWithTag.forEach(
+            socket => socket.send(str)
+          );
+        });
+
+      res.sendStatus(200);
     });
 
   }
