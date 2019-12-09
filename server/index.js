@@ -2,12 +2,11 @@ const WebSocket = require('ws');
 const express = require("express");
 const uuidv4 = require('uuid/v4');
 const request = require('request');
-const bodyParser = require('body-parser');
 const querystring = require('querystring');
 
 const SOCKETLESS_WEBSOCKET_PORT = process.env.SOCKETLESS_WEBSOCKET_PORT || 4000;
 const SOCKETLESS_REST_PORT = process.env.SOCKETlESS_WEBSOCKET_PORT || 4001;
-const SOCKETLESS_ON_MSG_URL = 'http://localhost:3000/api/onMsg';
+const SOCKETLESS_ON_MSG_URL = process.env.SOCKETLESS_ON_MSG_URL || 'http://localhost:3000/api/onMsg';
 
 /*
   TODO
@@ -79,8 +78,6 @@ const server = {
       console.log("Listening for internal REST requests on port "
         + SOCKETLESS_REST_PORT);
     });
-
-    //rest.use(bodyParser.json());
 
     rest.get('/addTag', (req, res) => {
       console.log('server addTag', req.query, req.body);
