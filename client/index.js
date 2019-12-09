@@ -14,11 +14,9 @@ class SocketlessClient {
     console.log(opts);
   }
 
-  addTag(sid, tag) {
-    const url = constructUrl('addTag', { sid, tag });
-    request(url, (err, res, body) => {
-      console.log('addTag query got back', body);
-    });
+  incoming(req) {
+    const msg = new IncomingMessageRequest(req);
+    return msg;
   }
 
   sendToSid(sid, msg) {
@@ -36,6 +34,33 @@ class SocketlessClient {
   sendToAll(msg, extra) {
     // check if server list up to date
     // send to all servers
+  }
+
+}
+
+class IncomingMessageRequest {
+
+  constructor(req) {
+    if (req.headers['x-socketless-msgdata'])
+      this.data = JSON.parse(req.headers['x-socketless-msgdata']);
+
+    this.sid = req.query.sid;
+
+    console.log(this);
+  }
+
+  addTag(tag) {
+    const url = constructUrl('addTag', { sid: this.sid, tag });
+    request(url, (err, res, body) => {
+      console.log('addTag query got back', body);
+    });
+  }
+
+  setMessageData(key, val) {
+    const url = constructUrl('setMessageData', { sid: this.sid, key, val });
+    request(url, (err, res, body) => {
+      console.log('setMessageData query got back', body);
+    });
   }
 
 }

@@ -39,6 +39,9 @@ const server = {
       const socketId = this.socketCounter++;
       this.sockets.set(socketId, ws);
 
+      ws.msgData = {};
+      ws.msgDataStr = '';
+
       // REST call to ON_CONNECTION_URL
       console.log('client connect', socketId);
 
@@ -46,11 +49,15 @@ const server = {
         console.log('received: %s', message);
 
         const url = SOCKETLESS_ON_MSG_URL + '?' + querystring.stringify({ sid: socketId });
-        const reqOpts = { url, body: message };
+
+        const reqOpts = { url, body: message, headers: {} };
+
+        if (ws.msgDataStr)
+          reqOpts.headers['X-Socketless-MsgData'] = ws.msgDataStr;
 
         // TODO XXX think about this some more :)
         if (message.substr(0,1) === '{')
-          reqOpts.headers = { 'Content-type': 'application/json' };
+          reqOpts.headers['Content-type'] = 'application/json';
 
         console.log(`-> ${url}, body: ${message.substring(0, 20)}`);
         request.post(reqOpts, (error, response, body) => {
@@ -103,6 +110,15 @@ const server = {
       res.sendStatus(200);
     });
 
+    rest.get('/setMessageData', (req, res) => {
+      console.log('server setMessageData', req.query, req.body);
+      const { sid, key, val } = req.query;
+      const socket = this.sockets.get(parseInt(sid));
+
+      socket.msgData[key] = val;
+      socket.msgDataStr = JSON.stringify(socket.msgData);
+      res.sendStatus(200);
+    });
   }
 
 };
