@@ -98,10 +98,7 @@ const server = {
 
       if (socketsWithTag)
         req.on('data', chunk => {
-          const str = chunk.toString();
-          socketsWithTag.forEach(
-            socket => socket.send(str)
-          );
+          socketsWithTag.forEach( ws => ws.send(chunk) );
         });
 
       res.sendStatus(200);
