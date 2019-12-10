@@ -1,7 +1,7 @@
 const request = require('request');
 const querystring = require('querystring');
 
-const SERVER_URL='http://localhost:4001/';
+const SERVER_URL = process.env.SOCKETLESS_REST_URL || 'http://localhost:4000/';
 
 function constructUrl(endPoint, query) {
   return SERVER_URL + endPoint + '?' + querystring.stringify(query);
