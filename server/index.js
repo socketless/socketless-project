@@ -7,9 +7,12 @@ const querystring = require('querystring');
 const SOCKETLESS_WEBSOCKET_PORT = process.env.SOCKETLESS_WEBSOCKET_PORT || 4000;
 const SOCKETLESS_REST_PORT = process.env.SOCKETlESS_WEBSOCKET_PORT || 4001;
 const SOCKETLESS_ON_MSG_URL = process.env.SOCKETLESS_ON_MSG_URL || 'http://localhost:3000/api/onMsg';
+const SOCKETLESS_ON_CONNECT_URL = process.env.SOCKETLESS_ON_CONNECT_URL || 'http://localhost:3000/api/onConnect';
 
 /*
   TODO
+
+  TODAY, optional config in constructor
 
   - API
     - debug=true parameter, return number of sockets sent to, timing stats
@@ -17,18 +20,24 @@ const SOCKETLESS_ON_MSG_URL = process.env.SOCKETLESS_ON_MSG_URL || 'http://local
 
 */
 
-const server = {
+class SocketlessServer {
 
-  init(config) {
+  constructor(config = {}) {
+
     this.instanceId = uuidv4();
 
+    const websocketPort = config.websocketPort || SOCKETLESS_WEBSOCKET_PORT;
+    const restPort = config.restPort || SOCKETLESS_REST_PORT;
+
+    const onMsgUrl = config.onMsgUrl || SOCKETLESS_ON_MSG_URL;
+    const onConnectUrl = config.onConnectUrl || SOCKETLESS_ON_CONNECT_URL;
+
     const wss = this.wss = new WebSocket.Server({
-      port: SOCKETLESS_WEBSOCKET_PORT,
+      port: websocketPort,
       // allow optional settings
     });
 
-    console.log("Listening for WebSocket connections on port "
-      + SOCKETLESS_WEBSOCKET_PORT);
+    console.log("Listening for WebSocket connections on port " + websocketPort);
 
     this.sockets = new Map();
     this.socketCounter = 0;
@@ -44,19 +53,32 @@ const server = {
       // REST call to ON_CONNECTION_URL
       console.log('client connect', socketId);
 
+      console.log(onConnectUrl + '?' + querystring.stringify({ sid: socketId }));
+      request(onConnectUrl + '?' + querystring.stringify({ sid: socketId }), (error, response, body) => {
+        if (error)
+          console.log(error);
+        if (body !== 'OK')
+          console.log(body);
+      });
+
       ws.on('message', message => {
         console.log('received: %s', message);
 
-        const url = SOCKETLESS_ON_MSG_URL + '?' + querystring.stringify({ sid: socketId });
+        const url = onMsgUrl + '?' + querystring.stringify({ sid: socketId });
 
         const reqOpts = { url, body: message, headers: {} };
 
         if (ws.msgDataStr)
           reqOpts.headers['X-Socketless-MsgData'] = ws.msgDataStr;
 
-        // TODO XXX think about this some more :)
-        if (message.substr(0,1) === '{')
-          reqOpts.headers['Content-type'] = 'application/json';
+        if (typeof message === 'string') {
+          reqOpts.headers['Content-type'] = 'text/plain';
+        } else {
+          // application/octet-stream ?
+          console.log('ERROR untested non-string message');
+          console.log(message);
+          process.exit();
+        }
 
         console.log(`-> ${url}, body: ${message.substring(0, 20)}`);
         request.post(reqOpts, (error, response, body) => {
@@ -74,9 +96,8 @@ const server = {
     // REST server
     const rest = express();
 
-    rest.listen(SOCKETLESS_REST_PORT, () => {
-      console.log("Listening for internal REST requests on port "
-        + SOCKETLESS_REST_PORT);
+    rest.listen(restPort, () => {
+      console.log("Listening for internal REST requests on port " + restPort);
     });
 
     rest.get('/addTag', (req, res) => {
@@ -96,10 +117,22 @@ const server = {
 
       const socketsWithTag = this.tags.get(req.query.tag);
 
-      if (socketsWithTag)
+      if (socketsWithTag) {
+        /* // TODO think about better way to handle non-text & streaming
+          since sendToTag honors content-type, probably a good start
         req.on('data', chunk => {
+          console.log(5, typeof chunk, chunk)
           socketsWithTag.forEach( ws => ws.send(chunk) );
         });
+        */
+       let body = [];
+       req
+        .on('data', chunk => body.push(chunk))
+        .on('end', () => {
+          body = Buffer.concat(body).toString();
+          socketsWithTag.forEach( ws => ws.send(body) )
+        });
+      }
 
       res.sendStatus(200);
     });
@@ -117,5 +150,4 @@ const server = {
 
 };
 
-
-module.exports = server;
+module.exports = SocketlessServer;

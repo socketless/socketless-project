@@ -7,6 +7,17 @@ function constructUrl(endPoint, query) {
   return SERVER_URL + endPoint + '?' + querystring.stringify(query);
 }
 
+function setReqOptsFromMsg(msg, reqOpts) {
+  if (!reqOpts.headers)
+    reqOpts.headers = {};
+
+  if (typeof msg === 'string') {
+    reqOpts.body = msg;
+    reqOpts.headers['Content-Type'] = 'text/plain';
+  } else
+    throw new Error("unsure how to handle non-string types for now, open an issue");
+}
+
 class SocketlessClient {
 
   constructor(opts = {}) {
@@ -25,8 +36,10 @@ class SocketlessClient {
   }
 
   sendToTag(tag, msg) {
-    const url = constructUrl('sendToTag', { tag });
-    request.post({ url, body: msg }, (err, res, body) => {
+    const reqOpts = { url: constructUrl('sendToTag', { tag }) };
+    setReqOptsFromMsg(msg, reqOpts);
+
+    request.post(reqOpts, (err, res, body) => {
       console.log('sendToTag query got back', body);
     });
   }

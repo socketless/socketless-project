@@ -20,10 +20,10 @@ Socketless consists of two parts...
 
 ### Server
 
-Very little setup is required.  All you need basically need is:
+Very little setup is required for basic use.  You just need:
 
 ```js
-require('socketless-server').init();
+new require('socketless-server')();
 ```
 
 and to set the following environment variables:
@@ -60,3 +60,8 @@ module.exports = (req, res) => {
 ```
 
 For more examples and API docs, see the [client README](./client/README.md).
+
+## Roadmap
+
+* Support multiple apps via host-based routing
+* Support multiple instances (via redis? etcd?)
