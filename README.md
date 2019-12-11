@@ -63,5 +63,7 @@ For more examples and API docs, see the [client README](./client/README.md).
 
 ## Roadmap
 
+* Error handling, debug logging
+* Tests
 * Support multiple apps via host-based routing
 * Support multiple instances (via redis? etcd?)
