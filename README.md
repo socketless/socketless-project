@@ -16,6 +16,11 @@ Socketless consists of two parts...
 * A socketless **client**, to be used inside your serverless lambdas.
   * Simplifies working with incoming messages and the REST API.
 
+| Package           | Version | Build | Coverage
+| ----------------- | ------- | ----- | --------
+| [socketless-server](https://github.com/socketless/socketless-server) | ![npm](https://img.shields.io/npm/v/socketless-server) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-server)](https://circleci.com/gh/socketless/socketless-server) | [![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-server)](https://codecov.io/gh/socketless/socketless-server)
+| [socketless-client](https://github.com/socketless/socketless-client) | ![npm](https://img.shields.io/npm/v/socketless-client) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-client)](https://circleci.com/gh/socketless/socketless-client) |[![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-client)](https://codecov.io/gh/socketless/socketless-client)
+
 ## Quick Start
 
 ### Server
@@ -35,9 +40,11 @@ and to set the following environment variables:
 
 For more information and optional config, see the [server README](./server/README.md).
 
+For an example deployment on Zeit Now v1 (of just the router), see [socketless-examples/draw/server](https://github.com/socketless/socketless-examples/tree/master/draw/server) (demo at [draw.socketless.org](https://draw.socketless.org/), which combines with Zeit Now v2 serverless lambdas).
+
 ### Client
 
-The client offers convenience methods on incoming messages and over the REST
+The client (running inside of your serverless lambdas) offers convenience methods on incoming messages and over the REST
 API and looks like this (example `api/onMsg.js` lambda):
 
 ```js
@@ -60,6 +67,8 @@ module.exports = (req, res) => {
 ```
 
 For more examples and API docs, see the [client README](./client/README.md).
+
+For an example deployment on Zeit Now v2 (of the serverless lambdas), see [socketless-examples/draw/server](https://github.com/socketless/socketless-examples/tree/master/draw/app/api) (demo at [draw.socketless.org](https://draw.socketless.org/), which combines with router hosted on Zeit Now v1).
 
 ## Roadmap
 
