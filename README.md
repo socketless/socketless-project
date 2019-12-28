@@ -4,6 +4,11 @@ WIP: A websocket router for serverless apps.
 
 Copyright (c) 2019 by Gadi Cohen, MIT licensed.
 
+| Package           | Version | Build | Coverage
+| ----------------- | ------- | ----- | --------
+| [socketless-server](https://github.com/socketless/socketless-server) | ![npm](https://img.shields.io/npm/v/socketless-server) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-server)](https://circleci.com/gh/socketless/socketless-server) | [![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-server)](https://codecov.io/gh/socketless/socketless-server)
+| [socketless-client](https://github.com/socketless/socketless-client) | ![npm](https://img.shields.io/npm/v/socketless-client) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-client)](https://circleci.com/gh/socketless/socketless-client) |[![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-client)](https://codecov.io/gh/socketless/socketless-client)
+
 ## Introduction
 
 Socketless consists of two parts...
@@ -15,11 +20,6 @@ Socketless consists of two parts...
 
 * A socketless **client**, to be used inside your serverless lambdas.
   * Simplifies working with incoming messages and the REST API.
-
-| Package           | Version | Build | Coverage
-| ----------------- | ------- | ----- | --------
-| [socketless-server](https://github.com/socketless/socketless-server) | ![npm](https://img.shields.io/npm/v/socketless-server) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-server)](https://circleci.com/gh/socketless/socketless-server) | [![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-server)](https://codecov.io/gh/socketless/socketless-server)
-| [socketless-client](https://github.com/socketless/socketless-client) | ![npm](https://img.shields.io/npm/v/socketless-client) | [![CircleCI](https://img.shields.io/circleci/build/github/socketless/socketless-client)](https://circleci.com/gh/socketless/socketless-client) |[![coverage](https://img.shields.io/codecov/c/github/socketless/socketless-client)](https://codecov.io/gh/socketless/socketless-client)
 
 ## Quick Start
 
